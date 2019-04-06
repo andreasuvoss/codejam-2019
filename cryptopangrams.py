@@ -1,22 +1,9 @@
-def integer_sqrt(n):
-    x = n
-    y = (x + n // x) // 2
-    while y < x:
-        x = y
-        y = (x + n // x) // 2
-    return x
-
-def fermat(n):
-    a = integer_sqrt(n)
-    b2 = a * a - n
-    b = integer_sqrt(n)
-
-    while b * b != b2:
-        a += 1
-        b2 = a * a - n
-        b = integer_sqrt(b2)
-
-    return (a+b, a-b) 
+def gcd(a, b):
+    while b != 0:
+        t = b
+        b = a % b
+        a = t
+    return a
 
 def decipher(prime_string, dictionary):
     plaintext = []
@@ -25,47 +12,50 @@ def decipher(prime_string, dictionary):
 
 if __name__ == '__main__':
 
-    num_testcases = int(input('Number of tests: '))
+    num_testcases = int(input())
 
-    primes = []
-
-    for i in range(num_testcases):
+    for tc in range(num_testcases):
         max_prime, num_chars = tuple(map(int, input().split(' ')))
         ciphertext = list(map(int, input().split(' ')))
 
-        # We factor the first semiprime in the ciphertext
-        first = fermat(ciphertext[0])
+        primes = []
         dictionary = {}
-
-        # We now know that one of the numbers in first is used to create the semiprime for second.
-        prime_in_next = 0
-        if ciphertext[1] % first[0] == 0:
-            primes.append(first[1])
-            prime_in_next = ciphertext[1] / first[0]
-            primes.append(first[0])
-        else:
-            primes.append(first[0])
-            prime_in_next = ciphertext[1] / first[1]
-            primes.append(first[1])
-
-        for j in range(2, len(ciphertext)):
-            primes.append(prime_in_next)
-            prime_in_next = ciphertext[j] / prime_in_next
         
+        # We find greatest common divisor between the first two ciphers that are different.
+        j = 0
+        while ciphertext[j] == ciphertext[j+1]:
+            j += 1    
+        
+        gcd_first_two = gcd(ciphertext[j], ciphertext[j+1])
+        first = (int(ciphertext[j] // gcd_first_two), gcd_first_two)
+
+        if j != 0:
+            prime_in_prev = int(ciphertext[j] // gcd_first_two)
+            temp_prime = []
+
+            # We know that GCD is also used to create the semiprime for second.
+            for i in range(j):
+                if i != 0:
+                    temp_prime.append(prime_in_prev)
+                prime_in_prev = ciphertext[j-i] // prime_in_prev
+
+            temp_prime.append(prime_in_prev)
+
+            for prime in reversed(temp_prime):
+                primes.append(prime)
+
+        primes.append(first[0])
+        prime_in_next = gcd_first_two
+
+        for i in range(j+1, len(ciphertext)):
+            primes.append(prime_in_next)
+            prime_in_next = int(ciphertext[i] // prime_in_next)
+
         primes.append(prime_in_next)
 
         primes = list(map(int, primes))
 
-        #print(primes)
-
-        #print(sorted(set(primes)))
-
         for index, prime in enumerate(sorted(set(primes))):
             dictionary[prime] = chr(97 + index)
 
-        #print(dictionary)
-        #print(primes)
-
-        print(primes)
-        print('Case #'+str(i+1)+':', decipher(primes, dictionary))
-
+        print('Case #'+str(tc+1)+':', decipher(primes, dictionary))
