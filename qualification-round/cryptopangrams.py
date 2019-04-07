@@ -12,11 +12,19 @@ def decipher(prime_string, dictionary):
 
 if __name__ == '__main__':
 
-    num_testcases = int(input())
+    lines = open('testdata.txt').read().splitlines()
+    line_to_read = 1
+    
+    num_testcases = int(lines[0])
+    #num_testcases = int(input())
 
     for tc in range(num_testcases):
-        max_prime, num_chars = tuple(map(int, input().split(' ')))
-        ciphertext = list(map(int, input().split(' ')))
+        #max_prime, num_chars = tuple(map(int, input().split(' ')))
+        max_prime, num_chars = tuple(map(int, lines[line_to_read].split(' ')))
+        line_to_read += 1
+        #ciphertext = list(map(int, input().split(' ')))
+        ciphertext = list(map(int, lines[line_to_read].split(' ')))
+        line_to_read += 1
 
         primes = []
         dictionary = {}
@@ -27,10 +35,10 @@ if __name__ == '__main__':
             j += 1    
         
         gcd_first_two = gcd(ciphertext[j], ciphertext[j+1])
-        first = (int(ciphertext[j] // gcd_first_two), gcd_first_two)
+        first = (ciphertext[j] // gcd_first_two, gcd_first_two)
 
         if j != 0:
-            prime_in_prev = int(ciphertext[j] // gcd_first_two)
+            prime_in_prev = ciphertext[j] // gcd_first_two
             temp_prime = []
 
             # We know that GCD is also used to create the semiprime for second.
@@ -49,7 +57,7 @@ if __name__ == '__main__':
 
         for i in range(j+1, len(ciphertext)):
             primes.append(prime_in_next)
-            prime_in_next = int(ciphertext[i] // prime_in_next)
+            prime_in_next = ciphertext[i] // prime_in_next
 
         primes.append(prime_in_next)
 
